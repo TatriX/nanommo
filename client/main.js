@@ -41,6 +41,11 @@ var host = (location.host == "localhost") ? "localhost" :  "54.229.106.82";
 var websocket = new WebSocket("ws://" + host + ":49000/");
 websocket.onopen = function() {
     print("Connection opened.");
+
+    websocket.onclose = function() {
+        alert("Disconnected");
+    }
+
     player = new Character;
 
     var defaultName = localStorage.getItem("nanommo.name");
@@ -53,10 +58,6 @@ websocket.onopen = function() {
     characters[player.name] = player;
     network.send("login", player.name);
     tick();
-}
-
-websocket.onclose = function() {
-    alert("Disconnected");
 }
 
 websocket.onerror = function(e) {
