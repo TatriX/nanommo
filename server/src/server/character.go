@@ -9,9 +9,9 @@ const (
 )
 
 type Character struct {
-	Pos, Dst Point
-	Angle    float64
-	Speed    uint
+	Pos, Dst Point   //Текущее положение и точка назначения
+	Angle    float64 //Угол поворота (на будущее)
+	Speed    uint    //Максимальная скорость
 	Name     string
 }
 
