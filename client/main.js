@@ -38,7 +38,7 @@ function print(msg) {
 
 var host = (location.host == "localhost") ? "localhost" :  "54.229.106.82";
 
-var websocket = new WebSocket("ws://" + host + ":49000/");
+var websocket = new WebSocket("ws://" + host + ":48888/");
 websocket.onopen = function() {
     print("Connection opened.");
 

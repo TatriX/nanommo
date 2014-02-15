@@ -121,7 +121,7 @@ func NanoHandler() {
         connections = make(map[string]*websocket.Conn, MAX_CLIENTS);
 	fmt.Println("Nano handler started")
 	http.Handle("/", websocket.Handler(NanoServer))
-	err := http.ListenAndServe(":49000", nil)
+	err := http.ListenAndServe(":48888", nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
 	}
