@@ -42,7 +42,14 @@ var websocket = new WebSocket("ws://" + host + ":49000/");
 websocket.onopen = function() {
     print("Connection opened.");
     player = new Character;
-    player.name = prompt("Name?", "Anonymous")
+
+    var defaultName = localStorage.getItem("nanommo.name");
+    if (!defaultName)
+        defaultName = "Anonymous";
+
+    player.name = prompt("Name?", defaultName);
+    localStorage.setItem("nanommo.name", player.name);
+
     characters[player.name] = player;
     network.send("login", player.name);
     tick();

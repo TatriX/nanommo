@@ -39,6 +39,7 @@ func NanoServer(ws *websocket.Conn) {
                         fmt.Printf("Client %s (%s) disconnected\n", character.Name, addr)
                         delete(characters, character.Name)
                         delete(connections, addr)
+                        go notifyClients()
                         break;
                 }
                 if err != nil {
