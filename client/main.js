@@ -113,8 +113,7 @@ function Map() {
     this.width = canvas.width;
     this.height = canvas.height;
     this.draw = function() {
-        ctx.fillStyle = "grey";
-        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.clearRect(0, 0, this.width, this.height);
     }
 }
 
@@ -124,6 +123,7 @@ function Character() {
     this.Angle = 0;
     this.Speed = 0;
     this.Name = "";
+    this.img.src = "assets/player.png";
 }
 
 Character.prototype = {
@@ -139,12 +139,27 @@ Character.prototype = {
     set y(y) {
         this.Pos.Y = y;
     },
+    img: new Image(),
     draw: function() {
-        var w = 64, h = 64;
-        ctx.fillStyle = (this == player) ? "green" : "red";
-        ctx.fillRect(Math.round(this.x - w / 2), Math.round(this.y - h / 2), w, h);
-        ctx.fillStyle = "white";
-        ctx.fillText(this.Name, this.x - ctx.measureText(this.Name).width / 2, this.y - h / 2 - FONT_SIZE);
+        if (!this.img.width)
+            return
+
+        var w = this.img.width, h = this.img.height;
+        ctx.drawImage(this.img, (this.x - w / 2) << 0, (this.y - h / 2) << 0);
+
+        this.drawName();
+    },
+    drawName: function() {
+        var pad = 2;
+        var w = ctx.measureText(this.Name).width;
+        var x = this.x - w / 2;
+        var y = this.y - this.img.height / 2 - 3 * pad;
+
+        ctx.fillStyle = "#333";
+        ctx.fillRect(x - pad, y - FONT_SIZE, w + 2 * pad, FONT_SIZE + 2 * pad)
+
+        ctx.fillStyle = (this == player) ? "lightgreen" : "red";
+        ctx.fillText(this.Name, x, y);
     },
     update: function() {
         if (this.Pos.equals(this.Dst, this.Speed * fps.k)) {
@@ -156,6 +171,7 @@ Character.prototype = {
         this.Angle = Math.atan2(lenY, lenX);
         var dx = Math.cos(this.Angle) * this.Speed * fps.k;
         var dy = Math.sin(this.Angle) * this.Speed * fps.k;
+
         this.x += dx;
         this.y += dy;
     },

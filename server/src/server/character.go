@@ -26,3 +26,10 @@ func (c *Character) update (k float64) {
         c.Pos.X += dx;
         c.Pos.Y += dy;
 }
+
+func NewCharacter() Character {
+        c := Character{Speed: CHAR_DEFAULT_SPEED}
+        c.Pos = Point{100, 100}
+        c.Dst = c.Pos
+        return c
+}

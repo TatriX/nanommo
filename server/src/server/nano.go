@@ -28,7 +28,7 @@ func NanoServer(ws *websocket.Conn) {
         addr := ws.Request().RemoteAddr
 
         connections[addr] = ws
-        character := Character{Speed:  CHAR_DEFAULT_SPEED}
+        character := NewCharacter()
 
         fmt.Printf("Client %s connected [Total clients connected: %d]\n", addr, len(connections))
 
