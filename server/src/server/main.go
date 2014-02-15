@@ -6,11 +6,14 @@ import (
 )
 
 const (
-	MAX_CLIENTS    = 100 //Столько клиентов мы готовы обслуживать одновременно
-	MAX_FPS        = 60
+	MAX_CLIENTS = 100 //Столько клиентов мы готовы обслуживать одновременно
+	MAX_FPS     = 60
+	// Время в go измеряется в наносекундах
+	// time.Second это количество наносекунд в секунде
 	FRAME_DURATION = time.Second / MAX_FPS
 )
 
+// Ключами этого хэша будут имена персонажей
 var characters map[string]*Character
 
 func updateCharacters(k float64) {
@@ -18,6 +21,7 @@ func updateCharacters(k float64) {
 		c.update(k)
 	}
 }
+
 func mainLoop() {
 	// Мы хотим чтобы персонажи двигались в не зависимости от скорости железа и
 	// загруженности системы.
@@ -35,8 +39,6 @@ func mainLoop() {
 		}
 		ellapsed := time.Now().Sub(frameStart)
 		// Коэфицент это отношение времени, потраченного на обработку одного кадра к секунде
-		// Время в гоу измеряется в наносекундах
-		// time.Second это количество наносекунд в секунде
 		k = float64(ellapsed) / float64(time.Second)
 	}
 }
