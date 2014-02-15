@@ -5,7 +5,7 @@ import (
 const (
         CHAR_DEFAULT_SPEED = 100
 )
-type id int
+
 type Character struct {
 	Pos, Dst Point
 	Angle    float64
