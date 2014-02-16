@@ -10,6 +10,7 @@ import (
 
 const (
 	MAX_CMD_SIZE  = 1024
+	MAX_OP_LEN    = 64
 	CMD_DELIMITER = "|"
 )
 
@@ -50,7 +51,7 @@ func NanoServer(ws *websocket.Conn) {
 
 		fmt.Printf("Received %d bytes from %s (%s): %s\n", n, character.Name, addr, cmd[:n])
 
-		opIndex := strings.Index(string(cmd), CMD_DELIMITER)
+		opIndex := strings.Index(string(cmd[:MAX_OP_LEN]), CMD_DELIMITER)
 		if opIndex < 0 {
 			fmt.Println("Malformed command")
 			continue
@@ -86,9 +87,7 @@ func NanoServer(ws *websocket.Conn) {
 }
 
 func sendError(ws *websocket.Conn, error string) {
-	var packet packet
-	packet.Error = error
-
+	packet := packet{Error: error}
 	msg, _, err := websocket.JSON.Marshal(packet)
 	if err != nil {
 		fmt.Println(err)
@@ -101,9 +100,7 @@ func sendError(ws *websocket.Conn, error string) {
 }
 
 func notifyClients() {
-	var packet packet
-	packet.Characters = &characters
-
+	packet := packet{Characters: &characters}
 	msg, _, err := websocket.JSON.Marshal(packet)
 	if err != nil {
 		fmt.Println(err)
