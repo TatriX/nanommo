@@ -17,7 +17,7 @@ const (
 // Ключи — адреса клиентов вида ip:port
 var connections map[string]*websocket.Conn
 
-// Эту структуру мы будем сериазиловать в json и передавать клиенту
+// Эту структуру мы будем сериализовать в json и передавать клиенту
 type packet struct {
 	Characters *map[string]*Character
 	Error      string
@@ -27,9 +27,9 @@ type packet struct {
 func NanoHandler() {
 	connections = make(map[string]*websocket.Conn, MAX_CLIENTS)
 	fmt.Println("Nano handler started")
-	//Ссылки вида ws://hostname:48888/ будем обрабытвать функцией NanoServer
+	//Ссылки вида ws://hostname:48888/ будем обрабатывать функцией NanoServer
 	http.Handle("/", websocket.Handler(NanoServer))
-	//Слушаем порт 48888 всех доступных сетевых интерфейсах
+	//Слушаем порт 48888 на всех доступных сетевых интерфейсах
 	err := http.ListenAndServe(":48888", nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
@@ -38,6 +38,7 @@ func NanoHandler() {
 
 //Обрабатывает сетевое подключения
 func NanoServer(ws *websocket.Conn) {
+	//Памяти выделили под MAX_CLIENTS, поэтому цинично игнорируем тех на кого не хватает места
 	if len(connections) >= MAX_CLIENTS {
 		fmt.Println("Cannot handle more requests")
 		return
@@ -46,6 +47,7 @@ func NanoServer(ws *websocket.Conn) {
 	//Получаем адрес клиента, например, 127.0.0.1:52655
 	addr := ws.Request().RemoteAddr
 
+	//Кладем соединение в таблицу
 	connections[addr] = ws
 	//Создаем нового персонажа, инициализируя его некоторыми стандартными значениями
 	character := NewCharacter()
@@ -54,16 +56,21 @@ func NanoServer(ws *websocket.Conn) {
 
 	cmd := make([]byte, MAX_CMD_SIZE)
 	for {
+		//Читаем полученное сообщение
 		n, err := ws.Read(cmd)
+
+		//Клиент отключился
 		if err == io.EOF {
 			fmt.Printf("Client %s (%s) disconnected\n", character.Name, addr)
-			//Клиент отключился — удаляем его из таблиц
+			//Удаляем его из таблиц
 			delete(characters, character.Name)
 			delete(connections, addr)
-			//И оповещаем подключенных клиентов о том, что игрок пропал
+			//И оповещаем подключенных клиентов о том, что игрок ушел
 			go notifyClients()
+			//Прерываем цикл и обработку этого соединения
 			break
 		}
+		//Игнорируем возможные ошибки, пропуская дальнейшую обработку сообщения
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -71,7 +78,7 @@ func NanoServer(ws *websocket.Conn) {
 
 		fmt.Printf("Received %d bytes from %s (%s): %s\n", n, character.Name, addr, cmd[:n])
 
-		//Команды от клиента выглядят так: operation-name|{"operation-param": "value", ...}
+		//Команды от клиента выглядят так: operation-name|{"param": "value", ...}
 		//Поэтому сначала выделяем операцию
 		opIndex := strings.Index(string(cmd[:MAX_OP_LEN]), CMD_DELIMITER)
 		if opIndex < 0 {
@@ -79,13 +86,13 @@ func NanoServer(ws *websocket.Conn) {
 			continue
 		}
 		op := string(cmd[:opIndex])
-		//Соответсвенно все что после разделителя данные команды в json формате
-		//Обратите внимания что мы берем данные вплоть до n байт
+		//После разделителя идут данные команды в json формате
+		//Обратите внимание на то, что мы берем данные вплоть до n байт
 		//Все что дальше — мусор, и если не отрезать лишнее,
 		//мы получим ошибку декодирования json
 		data := cmd[opIndex+len(CMD_DELIMITER) : n]
 
-		//А теперь в зависимости от комнады выполняем действия
+		//А теперь в зависимости от команды выполняем действия
 		switch op {
 		case "login":
 			var name string
@@ -105,7 +112,7 @@ func NanoServer(ws *websocket.Conn) {
 			}
 		case "set-dst":
 			var p Point
-			//Игрок нажал куда-то мышкой, в надежде туда переместится
+			//Игрок нажал куда-то мышкой в надежде туда переместится
 			if err := websocket.JSON.Unmarshal(data, ws.PayloadType, &p); err != nil {
 				fmt.Println("Unmarshal error: ", err)
 			}
@@ -125,7 +132,7 @@ func NanoServer(ws *websocket.Conn) {
 
 //Оповещает клиента об ошибке
 func sendError(ws *websocket.Conn, error string) {
-	//Создаем пакет, у которого заполено только поле ошибки
+	//Создаем пакет, у которого заполнено только поле ошибки
 	packet := packet{Error: error}
 	//Кодируем его в json
 	msg, _, err := websocket.JSON.Marshal(packet)
