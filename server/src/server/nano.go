@@ -14,7 +14,7 @@ const (
 	CMD_DELIMITER = "|"
 )
 
-// Ключи — адреса клиентов
+// Ключи — адреса клиентов вида ip:port
 var connections map[string]*websocket.Conn
 
 // Эту структуру мы будем сериазиловать в json и передавать клиенту
@@ -43,7 +43,7 @@ func NanoServer(ws *websocket.Conn) {
 		return
 	}
 
-	//Получаем адрес клиента вида ip:port
+	//Получаем адрес клиента, например, 127.0.0.1:52655
 	addr := ws.Request().RemoteAddr
 
 	connections[addr] = ws
