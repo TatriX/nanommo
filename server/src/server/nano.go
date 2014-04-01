@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -37,8 +38,10 @@ func NanoHandler() {
 }
 
 //Обрабатывает сетевое подключения
+var playersNum = 0
+
 func NanoServer(ws *websocket.Conn) {
-	//Памяти выделили под MAX_CLIENTS, поэтому цинично игнорируем тех на кого не хватает места
+	//Памяти выделили под MAX_CLIENTS, поэтому цинично игнорируем тех на, кого не хватает места
 	if len(connections) >= MAX_CLIENTS {
 		fmt.Println("Cannot handle more requests")
 		return
@@ -96,8 +99,10 @@ func NanoServer(ws *websocket.Conn) {
 		switch op {
 		case "login":
 			var name string
+			name = "Player-" + strconv.Itoa(playersNum)
+			playersNum++
 			//Декодируем сообщение и получаем логин
-			websocket.JSON.Unmarshal(data, ws.PayloadType, &name)
+			// websocket.JSON.Unmarshal(data, ws.PayloadType, &name)
 			//Если такого персонажа нет онлайн
 			if _, ok := characters[name]; !ok && len(name) > 0 {
 				//Авторизуем его

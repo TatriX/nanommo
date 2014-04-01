@@ -52,7 +52,7 @@ websocket.onopen = function() {
     if (!defaultName)
         defaultName = "Anonymous";
 
-    player.name = prompt("Name?", defaultName);
+    // player.name = prompt("Name?", defaultName);
     localStorage.setItem("nanommo.name", player.name);
 
     characters[player.name] = player;

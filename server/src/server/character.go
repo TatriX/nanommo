@@ -10,7 +10,7 @@ const (
 
 type Character struct {
 	Pos, Dst Point   //Текущее положение и точка назначения
-	Angle    float64 //Угол поворота (на будущее)
+	Angle    float64 //Угол поворота
 	Speed    uint    //Максимальная скорость
 	Name     string
 }
