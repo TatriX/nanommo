@@ -3,7 +3,6 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -59,8 +58,8 @@ func NanoServer(ws *websocket.Conn) {
 		//Читаем полученное сообщение
 		n, err := ws.Read(cmd)
 
-		//Клиент отключился
-		if err == io.EOF {
+		//Клиент отключился или просто отвалился
+		if err != nil {
 			fmt.Printf("Client %s (%s) disconnected\n", character.Name, addr)
 			//Удаляем его из таблиц
 			delete(characters, character.Name)
@@ -69,11 +68,6 @@ func NanoServer(ws *websocket.Conn) {
 			go notifyClients()
 			//Прерываем цикл и обработку этого соединения
 			break
-		}
-		//Игнорируем возможные ошибки, пропуская дальнейшую обработку сообщения
-		if err != nil {
-			fmt.Println(err)
-			continue
 		}
 
 		fmt.Printf("Received %d bytes from %s (%s): %s\n", n, character.Name, addr, cmd[:n])
